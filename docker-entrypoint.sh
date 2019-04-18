@@ -61,7 +61,7 @@ while [ $# -ge 1 ]
 do
   case $1 in
     nr|nt|uniref90|pfam)
-      mkdir -p ${DIR:=$(date '+%YQ%q')}
+      mkdir -p ${DIR:=$(date '+%Y%m')}
       cd ${DIR}
       eval $1
       shift ;;
