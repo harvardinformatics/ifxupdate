@@ -3,14 +3,15 @@ set -o errexit -o nounset -o pipefail -o xtrace
 
 # see https://ftp.ncbi.nlm.nih.gov/blast/db/v5/blastdbv5.pdf
 nr() {
-  update_blastdb.pl --blastdb_version 5 --decompress nr_v5
+  ${DEBUG:-false} || update_blastdb.pl --blastdb_version 5 --decompress nr_v5
 }
 
 nt() {
-  update_blastdb.pl --blastdb_version 5 --decompress nt_v5
+  ${DEBUG:-false} || update_blastdb.pl --blastdb_version 5 --decompress nt_v5
 }
 
 pfam() {
+  ${DEBUG:-false} && return
   curl -fO ftp://ftp.ebi.ac.uk/pub/databases/Pfam/current_release/Pfam.version.gz
   gzip -d Pfam.version.gz
 
@@ -21,6 +22,7 @@ pfam() {
 }
 
 uniref90() (
+  ${DEBUG:-false} && return
   aria2c --dir=/tmp ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/uniref/uniref90/uniref90.release_note
   title=$(grep Release: /tmp/uniref90.release_note)
   title="UniRef90 ${title// /}" # trim whitespace from Release:...
@@ -71,4 +73,4 @@ do
   esac
 done
 
-ln -sf ${DIR} latest
+ln -nsf ${DIR} latest
