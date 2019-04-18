@@ -57,15 +57,18 @@ uniref90() (
   rm uniref90.fasta.gz
 )
 
-while [ $# -ge 1 ]
+for db in "$@"
 do
-  case $1 in
+  case ${db} in
     nr|nt|uniref90|pfam)
       mkdir -p ${DIR:=$(date '+%Y%m')}
-      cd ${DIR}
-      eval $1
-      shift ;;
-    *) printf 'ERROR: unknown database: %s (must be in [nr|nt|uniref90|pfam])\n' "$1" 1>&2
+      (
+        cd ${DIR}
+        ${db}
+      ) ;;
+    *) printf 'ERROR: unknown database: %s (must be in [nr|nt|uniref90|pfam])\n' "${db}" 1>&2
        exit 1 ;;
   esac
 done
+
+ln -sf ${DIR} latest
