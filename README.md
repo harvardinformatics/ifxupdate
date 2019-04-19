@@ -12,7 +12,14 @@ Currently supported:
 
 Bind mount the host directory to populate to /mnt in the container.
 
-ifxupdate will create a subdirectory of the form YYYYQ[1-4] based on the current date (e.g., 2019Q2).
+ifxupdate will create a subdirectory based on the current date of the form:
+
+* YYYYMM-stable, if there does not exist a -stable directory with the same YYYY
+* YYYYMM, otherwise (i.e., non-"stable")
+
+Upon successful completion:
+1. A symbolic link "latest" is created that points to YYYYMM or YYYYMM-stable
+2. If the third most-recent directory is non-stable (YYYYMM), it is removed
 
 ### Example
 

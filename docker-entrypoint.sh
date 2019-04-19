@@ -59,11 +59,22 @@ uniref90() (
   rm uniref90.fasta.gz
 )
 
+readonly YEAR=$(date '+%Y') MONTH=$(date '+%m')
+
+# first directory created for this year is suffixed with -stable
+
+# if there is already a -stable directory for this year, and it isn't for this YYYYMM,
+if [ -d ${YEAR}??-stable ] && [ ! -d ${YEAR}${MONTH}-stable ]
+then
+  mkdir -p ${DIR:=${YEAR}${MONTH}} # create non-stable directory (no error if it already exists)
+else
+  mkdir -p ${DIR:=${YEAR}${MONTH}-stable} # create -stable directory YYYYMM (no error if it already exists)
+fi
+
 for db in "$@"
 do
   case ${db} in
     nr|nt|uniref90|pfam)
-      mkdir -p ${DIR:=$(date '+%Y%m')}
       (
         cd ${DIR}
         ${db}
@@ -73,4 +84,24 @@ do
   esac
 done
 
+# success; make "latest" symlink point to the new directory
+# (no harm if it already does)
 ln -nsf ${DIR} latest
+
+# set positional parameters to list of (YYYYMM) directories in lexicographic order
+set -- 2[0-9][0-9][0-9][0-9][0-9]*
+
+if [ ${#} -lt 3 ]
+then
+  printf 'Fewer than three release directories; not deleting any old ones\n'
+  exit
+fi
+
+# remove all but 3 most recent release directories from positional parameters
+shift $((${#} - 3))
+
+# Now $1 is the oldest, and $3 is the most recent
+case ${1} in
+  *-stable) printf '3rd most recent directory is %s; not removing\n' ${1} ;;
+         *) ( ${DEBUG:-false} && echo "would remove $1" ) || rm -rf ${1} ;;
+esac
